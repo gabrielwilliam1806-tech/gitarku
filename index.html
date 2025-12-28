@@ -1,0 +1,2508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GITARKU</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#acc0b0">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.rel='stylesheet'">
+
+    <style>
+        :root {
+            --bg-color: #acc0b0;
+            --card-bg: #e1e9e2;
+            --text-dark: #1a1a1a;
+            --primary-btn: #4a4a4a;
+            --accent: #7d8e7f;
+            --completed: #4CAF50;
+            --pending: #FF9800;
+            --wrong: #f44336;
+            --correct: #4CAF50;
+            --music-color: #9c27b0;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { margin: 0; background-color: #222; display: flex; justify-content: center; }
+
+        .phone-container {
+            width: 100%;
+            max-width: 450px;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #welcome {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            text-align: center;
+            background-color: var(--bg-color);
+            transition: 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .circle-logo {
+            width: 220px; height: 220px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            margin-bottom: 25px;
+            border: 2px solid #5a6b5c;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .circle-logo::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+            border-radius: 50%;
+        }
+
+        .logo-guitar {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-guitar svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+        }
+
+        /* --- APP HEADER (LOGO DI TENAH) --- */
+        header {
+            padding: 30px 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #cbd5cc;
+            padding: 5px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 380px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs button {
+            flex: none;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            background: transparent;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tabs button.active {
+            background: var(--bg-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* --- CONTENT AREA --- */
+        .content-body { padding: 0 20px 30px; }
+
+        .intro-box {
+            background: #d4dfd6;
+            padding: 18px;
+            border-radius: 15px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .menu-item {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+        }
+
+        /* --- CHORD LIBRARY --- */
+        .search-container { width: 100%; margin-bottom: 15px; }
+        .search-box {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: none; background: #cbd5cc; outline: none;
+        }
+
+        .chord-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .chord-card {
+            background: white;
+            border-radius: 18px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .chord-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* --- MODAL / FULL PAGE VIEW --- */
+        #detail-view {
+            position: fixed; top: 0; left: 50%;
+            transform: translateX(-50%); width: 100%;
+            max-width: 450px; height: 100%;
+            background: var(--bg-color); z-index: 2000;
+            display: none; flex-direction: column;
+        }
+
+        #quiz-view {
+            position: fixed; top: 0; left: 50%;
+            transform: translateX(-50%); width: 100%;
+            max-width: 450px; height: 100%;
+            background: var(--bg-color); z-index: 3000;
+            display: none; flex-direction: column;
+        }
+
+        .detail-header { 
+            padding: 20px; 
+            text-align: center; 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            position: relative;
+            background: var(--bg-color);
+        }
+        .back-btn { 
+            position: absolute; 
+            left: 20px; 
+            cursor: pointer; 
+            font-size: 1.5rem; 
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .content-card {
+            background: #fdfdfd;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 25px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .btn-done {
+            background: #444; color: white; border: none;
+            padding: 15px; width: 80%; margin: 0 auto 30px;
+            border-radius: 15px; font-weight: 800; cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-done:hover {
+            background: #333;
+        }
+
+        .chord-img-large { width: 180px; display: block; margin: 0 auto 20px; }
+        
+        /* --- STYLE TAMBAHAN UNTUK MATERI --- */
+        .materi-content {
+            line-height: 1.6;
+        }
+        
+        .materi-content h3 {
+            color: #2c3e2d;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .materi-content h4 {
+            color: #3a4a3c;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .materi-content p {
+            margin-bottom: 12px;
+        }
+        
+        .materi-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .materi-content li {
+            margin-bottom: 5px;
+        }
+        
+        .highlight-box {
+            background: #e8f0e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .chord-diagram {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .tip-box {
+            background: #fff8e1;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        /* --- STYLE UNTUK CHECKLIST --- */
+        .progress-bar {
+            background: #ddd;
+            height: 8px;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: var(--completed);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .day-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid var(--accent);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .day-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .day-title {
+            font-weight: 700;
+            color: #2c3e2d;
+        }
+        
+        .day-number {
+            background: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--pending);
+        }
+        
+        .status-indicator.completed {
+            background: var(--completed);
+        }
+        
+        .status-indicator.locked {
+            background: #ccc;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-radius: 4px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .checklist-checkbox.checked {
+            background: var(--completed);
+            border-color: var(--completed);
+            color: white;
+        }
+        
+        .checklist-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        .song-item {
+            background: #f0f7f1;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid var(--completed);
+        }
+        
+        .chord-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .chord-tag {
+            background: var(--accent);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .chord-tag:hover {
+            background: #6a7b6c;
+        }
+        
+        .week-section {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .week-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #2c3e2d;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .duration-badge {
+            background: #4a4a4a;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        /* --- STATISTICS STYLES --- */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        /* --- QUIZ STYLES --- */
+        .quiz-progress {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .quiz-question {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e2d;
+        }
+        
+        .quiz-option {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .quiz-option:hover {
+            background: #e8e8e8;
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--accent);
+            background: #e8f0e9;
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--correct);
+            background: #e8f5e9;
+        }
+        
+        .quiz-option.wrong {
+            border-color: var(--wrong);
+            background: #ffebee;
+        }
+        
+        .quiz-feedback {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        
+        .quiz-feedback.correct {
+            background: #e8f5e9;
+            color: var(--correct);
+        }
+        
+        .quiz-feedback.wrong {
+            background: #ffebee;
+            color: var(--wrong);
+        }
+        
+        .quiz-result {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .quiz-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 20px 0;
+        }
+        
+        .quiz-message {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .retry-btn {
+            background: var(--pending);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .retry-btn:hover {
+            background: #e68900;
+        }
+        
+        .continue-btn {
+            background: var(--completed);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .continue-btn:hover {
+            background: #3d8b40;
+        }
+        
+        .quiz-instruction {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 4px solid #ffc107;
+        }
+        
+        /* --- STYLE UNTUK MENU LAGU --- */
+        .song-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .song-card {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            border-left: 5px solid var(--music-color);
+        }
+        
+        .song-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+        }
+        
+        .song-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--music-color);
+            margin-bottom: 5px;
+        }
+        
+        .song-artist {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .song-chords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .song-chord-badge {
+            background: var(--music-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .song-difficulty {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #ffebee;
+            color: #d32f2f;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .song-difficulty.easy {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .song-difficulty.medium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        /* --- STYLE UNTUK LIRIK LAGU --- */
+        .song-lyrics-container {
+            font-family: 'Courier New', monospace;
+            line-height: 1.8;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .song-chord-line {
+            color: var(--music-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+        
+        .song-lyric-line {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .song-section {
+            margin-bottom: 25px;
+        }
+        
+        .song-section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px dashed var(--accent);
+        }
+        
+        .song-info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .play-along-btn {
+            background: var(--music-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            transition: background 0.3s;
+        }
+        
+        .play-along-btn:hover {
+            background: #7b1fa2;
+        }
+        
+        .tempo-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .tempo-btn {
+            background: #f5f5f5;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .tempo-display {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .metronome-section {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        /* --- LOGO IMPROVED STYLES --- */
+        .app-logo {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-logo svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #2c3e2d, #5a6b5c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+				.intro-title {
+			font-size: 1.1rem;      /* agak gede */
+			font-weight: 800;       /* bold tebal */
+			color: #2c3e2d;
+			margin-bottom: 6px;
+		}
+
+		.intro-subtitle {
+			font-size: 0.95rem;     /* sedikit lebih besar dari default */
+			font-weight: 600;       /* semi bold */
+			color: #3a4a3c;
+		}
+
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    
+    <div id="welcome">
+        <div class="circle-logo">
+            <div class="logo-guitar">
+                <svg viewBox="0 0 100 100">
+                    <!-- Body Gitar -->
+                    <ellipse cx="50" cy="65" rx="32" ry="20" fill="#5a6b5c" stroke="#2c3e2d" stroke-width="1.5"/>
+                    <ellipse cx="50" cy="65" rx="28" ry="16" fill="#7d8e7f" stroke="none"/>
+                    
+                    <!-- Sound Hole -->
+                    <circle cx="50" cy="65" r="10" fill="#2c3e2d"/>
+                    <circle cx="50" cy="65" r="8" fill="#1a1a1a"/>
+                    
+                    <!-- Neck -->
+                    <rect x="45" y="25" width="10" height="40" fill="#8b7355" stroke="#5d4c3c" stroke-width="1"/>
+                    
+                    <!-- Headstock -->
+                    <rect x="40" y="10" width="20" height="15" fill="#8b7355" stroke="#5d4c3c" stroke-width="1"/>
+                    <polygon points="40,10 60,10 65,17 35,17" fill="#a38b6d" stroke="#5d4c3c" stroke-width="1"/>
+                    
+                    <!-- Strings -->
+                    <line x1="50" y1="17" x2="50" y2="80" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+                    <line x1="47" y1="17" x2="47" y2="80" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+                    <line x1="44" y1="17" x2="44" y2="80" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+                    <line x1="53" y1="17" x2="53" y2="80" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+                    <line x1="56" y1="17" x2="56" y2="80" stroke="#ffffff" stroke-width="0.8" stroke-linecap="round"/>
+                    
+                    <!-- Bridge -->
+                    <rect x="40" y="75" width="20" height="5" fill="#5d4c3c" stroke="#2c3e2d" stroke-width="0.5"/>
+                    
+                    <!-- Tuning Keys -->
+                    <circle cx="42" cy="12" r="3" fill="#e0e0e0" stroke="#bdbdbd" stroke-width="0.5"/>
+                    <circle cx="48" cy="12" r="3" fill="#e0e0e0" stroke="#bdbdbd" stroke-width="0.5"/>
+                    <circle cx="52" cy="12" r="3" fill="#e0e0e0" stroke="#bdbdbd" stroke-width="0.5"/>
+                    <circle cx="58" cy="12" r="3" fill="#e0e0e0" stroke="#bdbdbd" stroke-width="0.5"/>
+                </svg>
+            </div>
+            <h2 style="margin-top:15px; letter-spacing:2px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">GITARKU</h2>
+        </div>
+        <div style="font-weight:800; margin-bottom:40px; text-align:center; font-size:0.95rem; line-height:1.4; color: #2c3e2d;">
+            SELAMAT DATANG DI GITARKU<br>PLATFORM BELAJAR GITAR TERLENGKAP
+        </div>
+        <button class="btn-done" style="width:220px" onclick="startApp()">MULAI BELAJAR</button>
+    </div>
+
+    <div id="app" style="display:none;">
+        <header>
+            <div class="header-brand">
+                <div class="app-logo">
+                    <svg viewBox="0 0 50 50">
+                        <ellipse cx="25" cy="32" rx="16" ry="10" fill="#7d8e7f" stroke="#5a6b5c" stroke-width="1"/>
+                        <ellipse cx="25" cy="32" rx="14" ry="8" fill="#acc0b0" stroke="none"/>
+                        <circle cx="25" cy="32" r="5" fill="#2c3e2d"/>
+                        <rect x="22.5" y="12" width="5" height="20" fill="#8b7355" stroke="#5d4c3c" stroke-width="0.8"/>
+                        <line x1="25" y1="8" x2="25" y2="40" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round"/>
+                        <line x1="23.5" y1="8" x2="23.5" y2="40" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round"/>
+                        <line x1="22" y1="8" x2="22" y2="40" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round"/>
+                        <line x1="26.5" y1="8" x2="26.5" y2="40" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round"/>
+                        <line x1="28" y1="8" x2="28" y2="40" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <b class="logo-text">GITARKU</b>
+            </div>
+            <div class="nav-tabs">
+                <button id="btn-materi" class="active" onclick="showTab('materi')"><i class="fas fa-book"></i> pembelajaran</button>
+                <button id="btn-kunci" onclick="showTab('kunci')"><i class="fas fa-music"></i> daftar kunci</button>
+                <button id="btn-lagu" onclick="showTab('lagu')"><i class="fas fa-play-circle"></i> belajar lagu</button>
+                <button id="btn-challenge" onclick="showTab('challenge')"><i class="fas fa-trophy"></i> 30-day challenge</button>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div id="tab-materi-content">
+                <div class="intro-box">
+					<i class="fas fa-guitar" style="color: var(--accent); font-size: 1.3rem; margin-bottom: 10px; display: block;"></i>
+
+					<div class="intro-title">
+						Selamat Datang di Kelas Gitar! 🎸
+					</div>
+
+					<div class="intro-subtitle">
+						Mulai perjalanan musik Anda dari dasar.
+					</div>
+				</div>
+
+                <div class="menu-item" onclick="openMateri('m1')">
+                    <h4><i class="fas fa-guitar"></i> Pengenalan Dasar Gitar</h4>
+                    <p>Bagian-bagian gitar & posisi dasar</p>
+                </div>
+                <div class="menu-item" onclick="openMateri('m2')">
+                    <h4><i class="fas fa-hand-rock"></i> Kunci-Kunci Dasar</h4>
+                    <p>Mayor dan minor dasar</p>
+                </div>
+                <div class="menu-item" onclick="openMateri('m3')">
+                    <h4><i class="fas fa-sliders-h"></i> Pola Strumming</h4>
+                    <p>Belajar genjrengan</p>
+                </div>
+                <div class="menu-item" onclick="openMateri('m4')">
+                    <h4><i class="fas fa-calendar-check"></i> Latihan Rutin</h4>
+                    <p>Rencana latihan untuk pemula</p>
+                </div>
+                <div class="menu-item" onclick="openMateri('m5')">
+                    <h4><i class="fas fa-tools"></i> Perawatan Gitar</h4>
+                    <p>Tips merawat instrumen Anda</p>
+                </div>
+            </div>
+
+            <div id="tab-kunci-content" style="display:none;">
+                <div class="search-container">
+                    <input type="text" class="search-box" placeholder="🔍 Cari kunci (C, D, G...)" onkeyup="filterChords(this.value)">
+                </div>
+                <div class="chord-grid" id="chord-list-container">
+                    <!-- Chord cards akan diisi oleh JavaScript -->
+                </div>
+            </div>
+            
+            <div id="tab-lagu-content" style="display:none;">
+                <div class="intro-box">
+                    <i class="fas fa-music" style="color: var(--music-color); font-size: 1.2rem; margin-bottom: 8px; display: block;"></i>
+                    <strong>🎵 Belajar Bermain Lagu</strong><br>
+                    Pilih lagu dan pelajari chord-nya. Mulai dari yang mudah!
+                </div>
+                
+                <div class="song-list" id="song-list-container">
+                    <!-- Daftar lagu akan diisi oleh JavaScript -->
+                </div>
+            </div>
+            
+            <div id="tab-challenge-content" style="display:none;">
+                <div class="intro-box">
+                    <i class="fas fa-trophy" style="color: var(--pending); font-size: 1.2rem; margin-bottom: 8px; display: block;"></i>
+                    <strong>🎯 30-Day Guitar Challenge</strong><br>
+                    Selesaikan semua hari untuk menguasai gitar dasar!
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="challenge-progress" style="width: 0%"></div>
+                    </div>
+                    <div id="progress-text">Progress: 0/30 hari (0%)</div>
+                </div>
+                
+                <div class="stats-container" id="challenge-stats">
+                    <!-- Stats akan diisi JavaScript -->
+                </div>
+                
+                <div id="challenge-days-container">
+                    <!-- Hari-hari akan diisi JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-view">
+        <div class="detail-header">
+            <span class="back-btn" onclick="closeDetail()">←</span>
+            <b id="detail-title">Detail</b>
+        </div>
+        <div class="content-card" id="detail-content"></div>
+        <button class="btn-done" id="start-quiz-btn" onclick="startQuiz()" style="display:none">LANJUT KE KUIS</button>
+        <button class="btn-done" id="mark-complete-btn" onclick="markDayComplete()" style="display:none">TANDAI SELESAI</button>
+        <button class="play-along-btn" id="play-song-btn" onclick="startPlayAlong()" style="display:none">
+            <i class="fas fa-play"></i> MAINKAN LAGU INI
+        </button>
+    </div>
+
+    <div id="quiz-view">
+        <div class="detail-header">
+            <span class="back-btn" onclick="closeQuiz()">←</span>
+            <b id="quiz-title">Kuis Harian</b>
+        </div>
+        <div class="content-card" id="quiz-content">
+            <!-- Konten kuis akan diisi JavaScript -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Data materi pembelajaran yang diperkaya
+    const materiData = {
+        m1: { 
+            title: "Pengenalan Dasar Gitar", 
+            body: `
+                <div class="materi-content">
+                    <h3><i class="fas fa-guitar"></i> Mengenal Bagian-Bagian Gitar</h3>
+                    <p>Gitar terdiri dari beberapa bagian utama yang perlu Anda ketahui:</p>
+                    
+                    <h4>1. Badan Gitar (Body)</h4>
+                    <p>Bagian terbesar gitar yang berfungsi sebagai resonator suara.</p>
+                    <ul>
+                        <li><strong>Sound Hole:</strong> Lubang suara pada gitar akustik</li>
+                        <li><strong>Bridge:</strong> Tempat menempelnya senar</li>
+                        <li><strong>Pickguard:</strong> Pelindung body dari goresan pick</li>
+                    </ul>
+                    
+                    <h4>2. Leher Gitar (Neck)</h4>
+                    <p>Bagian panjang tempat fretboard berada.</p>
+                    <ul>
+                        <li><strong>Fret:</strong> Besi pembatas di fretboard</li>
+                        <li><strong>Fretboard:</strong> Papan jari tempat menekan senar</li>
+                        <li><strong>Nut:</strong> Pembatas antara headstock dan fretboard</li>
+                    </ul>
+                    
+                    <h4>3. Kepala Gitar (Headstock)</h4>
+                    <p>Tempat tuning keys/pemutar senar berada.</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Tips Posisi Bermain:</strong>
+                        <ul>
+                            <li>Duduk tegak dengan gitar di pangkuan kanan</li>
+                            <li>Leher gitar miring ke atas sekitar 45 derajat</li>
+                            <li>Punggung tangan kiri tidak menempel pada leher gitar</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Senar Gitar dan Penamaannya</h3>
+                    <p>Gitar standar memiliki 6 senar dengan urutan dari yang paling tebal ke paling tipis:</p>
+                    
+                    <div class="chord-diagram">
+                        <p><strong>Senar 6 (paling atas) → E rendah (E2)</strong></p>
+                        <p><strong>Senar 5 → A (A2)</strong></p>
+                        <p><strong>Senar 4 → D (D3)</strong></p>
+                        <p><strong>Senar 3 → G (G3)</strong></p>
+                        <p><strong>Senar 2 → B (B3)</strong></p>
+                        <p><strong>Senar 1 (paling bawah) → E tinggi (E4)</strong></p>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Ingat Mnemonik:</strong> "Edi Anak Desa Gak Bisa English" 
+                        (E-A-D-G-B-E) untuk mengingat urutan senar!
+                    </div>
+                </div>
+            `
+        },
+        
+        m2: { 
+            title: "Kunci-Kunci Dasar", 
+            body: `
+                <div class="materi-content">
+                    <h3><i class="fas fa-hand-rock"></i> Kunci Dasar Mayor dan Minor</h3>
+                    <p>Kunci dasar adalah pondasi dalam bermain gitar. Berikut 6 kunci yang wajib dikuasai pemula:</p>
+                    
+                    <h4>1. Kunci C Mayor</h4>
+                    <p>Kunci paling dasar dan sering digunakan dalam banyak lagu.</p>
+                    <ul>
+                        <li>Posisi jari: 
+                            <ul>
+                                <li>Jari 1: senar 2 fret 1</li>
+                                <li>Jari 2: senar 4 fret 2</li>
+                                <li>Jari 3: senar 5 fret 3</li>
+                            </ul>
+                        </li>
+                        <li>Senar yang dibunyikan: Semua senar kecuali senar 6</li>
+                    </ul>
+                    
+                    <h4>2. Kunci G Mayor</h4>
+                    <p>Sering digunakan sebagai kunci utama dalam lagu-lagu pop.</p>
+                    <ul>
+                        <li>Posisi jari:
+                            <ul>
+                                <li>Jari 1: senar 5 fret 2</li>
+                                <li>Jari 2: senar 6 fret 3</li>
+                                <li>Jari 3: senar 1 fret 3</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h4>3. Kunci D Mayor</h4>
+                    <p>Kunci yang cerah dan optimis, cocok untuk lagu ceria.</p>
+                    
+                    <h4>4. Kunci A Minor (Am)</h4>
+                    <p>Kunci minor pertama yang harus dipelajari, sangat mudah.</p>
+                    <ul>
+                        <li>Posisi jari: 
+                            <ul>
+                                <li>Jari 1: senar 2 fret 1</li>
+                                <li>Jari 2: senar 4 fret 2</li>
+                                <li>Jari 3: senar 3 fret 2</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h4>5. Kunci E Minor (Em)</h4>
+                    <p>Kunci termudah karena hanya menggunakan 2 jari.</p>
+                    
+                    <h4>6. Kunci E Mayor</h4>
+                    <p>Kunci kuat yang banyak digunakan dalam rock dan blues.</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Latihan Perpindahan Kunci:</strong>
+                        <ol>
+                            <li>C → G → Am → Em (ulangi 10 kali)</li>
+                            <li>G → D → Em → C (ulangi 10 kali)</li>
+                            <li>Am → F → C → G (setelah belajar F)</li>
+                        </ol>
+                        <p>Latihan setiap hari selama 15 menit akan memberikan hasil signifikan dalam 2 minggu.</p>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Tips:</strong> Fokus pada kejelasan suara setiap senar, bukan kecepatan. 
+                        Pastikan setiap senar berbunyi jernih tanpa buzzing.
+                    </div>
+                </div>
+            `
+        },
+        
+        m3: { 
+            title: "Pola Strumming", 
+            body: `
+                <div class="materi-content">
+                    <h3><i class="fas fa-sliders-h"></i> Teknik Dasar Strumming (Genjrengan)</h3>
+                    <p>Strumming adalah teknik menggesek senar dengan pick atau jari untuk menghasilkan ritme.</p>
+                    
+                    <h4>1. Posisi Tangan Kanan</h4>
+                    <ul>
+                        <li>Pegang pick dengan ibu jari dan telunjuk</li>
+                        <li>Pick menonjol sekitar 1 cm dari jari</li>
+                        <li>Pergelangan tangan tetap rileks</li>
+                        <li>Gerakan berasal dari pergelangan tangan, bukan siku</li>
+                    </ul>
+                    
+                    <h4>2. Arah Strumming</h4>
+                    <ul>
+                        <li><strong>Downstroke (↓):</strong> Menggesek dari senar 6 ke senar 1</li>
+                        <li><strong>Upstroke (↑):</strong> Menggesek dari senar 1 ke senar 6</li>
+                    </ul>
+                    
+                    <h4>3. Pola Strumming Dasar untuk Pemula</h4>
+                    
+                    <p><strong>Pola 1: 4/4 Basic</strong></p>
+                    <div class="chord-diagram">
+                        <p><strong>Hitungan: 1 & 2 & 3 & 4 &</strong></p>
+                        <p><strong>Pola: ↓ ↓ ↑ ↑ ↓ ↑</strong></p>
+                        <p>↓ (1) ↓ (&) ↑ (2) ↑ (&) ↓ (3) ↑ (&) ↓ (4) ↑ (&)</p>
+                    </div>
+                    
+                    <p><strong>Pola 2: Folk Strum</strong></p>
+                    <div class="chord-diagram">
+                        <p><strong>Pola: ↓ ↓ ↑ ↑ ↓ ↑</strong></p>
+                        <p>Cocok untuk lagu-lagu folk dan akustik</p>
+                    </div>
+                    
+                    <p><strong>Pola 3: Slow Ballad</strong></p>
+                    <div class="chord-diagram">
+                        <p><strong>Pola: ↓ - ↑ - ↓ ↑</strong></p>
+                        <p>Untuk lagu slow dan romantis</p>
+                    </div>
+                    
+                    <h4>4. Latihan Strumming Harian</h4>
+                    <ol>
+                        <li>Pemanasan: Downstroke konstan (60 BPM) - 2 menit</li>
+                        <li>Alternating: ↓↑↓↑ dengan metronom - 3 menit</li>
+                        <li>Pola 1 dengan kunci C - 5 menit</li>
+                        <li>Pola 2 dengan kunci G - 5 menit</li>
+                        <li>Pola switching: C (4 ketuk) → G (4 ketuk) - 5 menit</li>
+                    </ol>
+                    
+                    <div class="highlight-box">
+                        <strong>Teknik Muting:</strong> Gunakan telapak tangan kanan untuk menahan senar 
+                        saat strumming untuk menghasilkan suara perkusif. Teknik ini banyak digunakan 
+                        dalam musik pop dan reggae.
+                    </div>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Latihan Efektif:</strong> Gunakan metronom! Mulai dari tempo 60 BPM, 
+                        naikkan 5 BPM setiap hari ketika sudah nyaman. Rekam diri Anda untuk mengevaluasi 
+                        ketepatan ritme.
+                    </div>
+                </div>
+            `
+        },
+        
+        m4: { 
+            title: "Latihan Rutin", 
+            body: `
+                <div class="materi-content">
+                    <h3><i class="fas fa-calendar-check"></i> Rencana Latihan Terstruktur</h3>
+                    <p>Klik tab <strong>"30-day challenge"</strong> untuk memulai program latihan harian dengan checklist dan lagu latihan!</p>
+                    
+                    <div class="highlight-box">
+                        <strong>Struktur Program 30 Hari:</strong>
+                        <ul>
+                            <li><strong>Minggu 1-2:</strong> Fondasi (kunci dasar, teknik dasar)</li>
+                            <li><strong>Minggu 3-4:</strong> Pengembangan (lagu sederhana, variasi)</li>
+                            <li><strong>Harian:</strong> Checklist tugas, chord spesifik, lagu latihan</li>
+                            <li><strong>Tracking:</strong> Progress bar, statistik, achievement</li>
+                        </ul>
+                    </div>
+                    
+                    <p>Program ini dirancang untuk memberikan struktur dan motivasi dalam belajar gitar secara konsisten.</p>
+                </div>
+            `
+        },
+        
+        m5: { 
+            title: "Perawatan Gitar", 
+            body: `
+                <div class="materi-content">
+                    <h3><i class="fas fa-tools"></i> Merawat Gitar untuk Pemula</h3>
+                    <p>Perawatan yang baik memperpanjang umur gitar dan menjaga kualitas suara.</p>
+                    
+                    <h4>1. Penyimpanan yang Benar</h4>
+                    <ul>
+                        <li><strong>Suhu:</strong> Simpan di ruangan 20-25°C</li>
+                        <li><strong>Kelembaban:</strong> Ideal 45-55% RH</li>
+                        <li><strong>Posisi:</strong> Gunakan stand gitar atau gantung di wall hanger</li>
+                        <li><strong>Hindari:</strong> Sinar matahari langsung, AC langsung, sumber panas</li>
+                    </ul>
+                    
+                    <h4>2. Pembersihan Rutin</h4>
+                    <p><strong>Setelah setiap penggunaan:</strong></p>
+                    <ul>
+                        <li>Lap body dan neck dengan kain microfiber</li>
+                        <li>Bersihkan senar dengan kain kering</li>
+                        <li>Periksa kebersihan fretboard</li>
+                    </ul>
+                    
+                    <p><strong>Mingguan:</strong></p>
+                    <ul>
+                        <li>Bersihkan fretboard dengan lemon oil (rosewood/mahoni)</li>
+                        <li>Periksa tuning machines</li>
+                        <li>Bersihkan bridge dan saddle</li>
+                    </ul>
+                    
+                    <h4>3. Perawatan Senar</h4>
+                    <ul>
+                        <li><strong>Ganti senar:</strong> Setiap 3 bulan (pemakaian normal)</li>
+                        <li><strong>Tanda senar perlu diganti:</strong>
+                            <ul>
+                                <li>Suara kurang jernih</li>
+                                <li>Korosi atau karat</li>
+                                <li>Susah disetem</li>
+                                <li>Terasa kasar saat digesek</li>
+                            </ul>
+                        </li>
+                        <li><strong>Teknik mengganti senar:</strong> Ganti satu per satu untuk menjaga neck tension</li>
+                    </ul>
+                    
+                    <h4>4. Setup dan Adjustment</h4>
+                    <p><strong>Periksa setiap 6 bulan:</strong></p>
+                    <ul>
+                        <li><strong>Action:</strong> Ketinggian senar dari fretboard</li>
+                        <li><strong>Neck relief:</strong> Kelengkungan neck</li>
+                        <li><strong>Intonation:</strong> Ketepatan nada di setiap fret</li>
+                    </ul>
+                    
+                    <div class="highlight-box">
+                        <strong>Kit Perawatan Wajib Dimiliki:</strong>
+                        <ul>
+                            <li>Kain microfiber (2 buah)</li>
+                            <li>Senar cadangan (set)</li>
+                            <li>Polish khusus gitar</li>
+                            <li>Fretboard conditioner</li>
+                            <li>String winder</li>
+                            <li>Capo dan tuner</li>
+                        </ul>
+                    </div>
+                    
+                    <h4>5. Troubleshooting Umum</h4>
+                    <ul>
+                        <li><strong>Buzzing senar:</strong> Kemungkinan action terlalu rendah atau fret aus</li>
+                        <li><strong>Susah tuning:</strong> Cek tuning machines, mungkin perlu lubrication</li>
+                        <li><strong>Suara tidak sustain:</strong> Cek nut dan saddle, mungkin perlu adjustment</li>
+                        <li><strong>Fret tajam:</strong> Tanda kelembaban rendah, fret perlu filing</li>
+                    </ul>
+                    
+                    <div class="tip-box">
+                        <strong>💡 Investasi:</strong> Beli humidifier jika di daerah kering. 
+                        Kelembaban rendah menyebabkan kayu retak. Biaya perawatan preventif 
+                        lebih murah daripada reparasi.
+                    </div>
+                    
+                    <p><strong>Dengan perawatan yang tepat, gitar Anda bisa bertahan puluhan tahun 
+                    dan tetap menghasilkan suara yang indah!</strong></p>
+                </div>
+            `
+        }
+    };
+
+		  const chordData = [
+		  {
+			name: "C",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 2 Fret 1<br>
+			  2. Jari 2: Senar 4 Fret 2<br>
+			  3. Jari 3: Senar 5 Fret 3
+			`,
+			image: "c.png"
+		  },
+		  {
+			name: "D",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 3 Fret 2<br>
+			  2. Jari 2: Senar 1 Fret 2<br>
+			  3. Jari 3: Senar 2 Fret 3
+			`,
+			image: "dm.jpg"
+		  },
+		  {
+			name: "G",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 5 Fret 2<br>
+			  2. Jari 2: Senar 6 Fret 3<br>
+			  3. Jari 3: Senar 1 Fret 3
+			`,
+			image: "g.jpeg"
+		  },
+		  {
+			name: "E",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 3 Fret 1<br>
+			  2. Jari 2: Senar 5 Fret 2<br>
+			  3. Jari 3: Senar 4 Fret 2
+			`,
+			image: "e.png"
+		  },
+		  {
+			name: "A",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 4 Fret 2<br>
+			  2. Jari 2: Senar 3 Fret 2<br>
+			  3. Jari 3: Senar 2 Fret 2
+			`,
+			image: "a.jpeg"
+		  },
+		  {
+			name: "Am",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 2 Fret 1<br>
+			  2. Jari 2: Senar 4 Fret 2<br>
+			  3. Jari 3: Senar 3 Fret 2
+			`,
+			image: "am.png"
+		  },
+		  {
+			name: "Em",
+			fingers: `
+			  <b>Posisi Jari:</b><br>
+			  1. Jari 1: Senar 5 Fret 2<br>
+			  2. Jari 2: Senar 4 Fret 2
+			`,
+			image: "em.png"
+		  },
+		  {
+			name: "F",
+			fingers: `
+			  <b>Posisi Jari (versi mudah):</b><br>
+			  1. Jari 1: Senar 3 Fret 2<br>
+			  2. Jari 2: Senar 4 Fret 3<br>
+			  3. Jari 3: Senar 5 Fret 3
+			`,
+			image: "f.png"
+		  }
+		];
+
+
+    // Data lagu-lagu untuk dipelajari
+    const songData = [
+        {
+            id: "kasih-ibu",
+            title: "Kasih Ibu",
+            artist: "Lagu Anak-Anak",
+            difficulty: "easy",
+            chords: ["C", "G", "Am", "F"],
+            bpm: 80,
+            lyrics: `
+[Intro]
+C - G - Am - F (2x)
+
+[Verse]
+C
+Kasih ibu kepada beta
+G
+Tak terhingga sepanjang masa
+Am
+Hanya memberi tak harap kembali
+F
+Bagai sang surya menyinari dunia
+
+[Chorus]
+C
+Kasih ibu kepada beta
+G
+Tak terhingga sepanjang masa
+Am
+Hanya memberi tak harap kembali
+F       C
+Bagai sang surya menyinari dunia
+
+[Verse]
+C
+Bagaikan mentari pagi hari
+G
+Memberi kasih sayang setiap waktu
+Am
+Kau berikan dirimu dengan tulus
+F
+Hanya untuk kebahagiaanku
+
+[Chorus]
+C
+Kasih ibu kepada beta
+G
+Tak terhingga sepanjang masa
+Am
+Hanya memberi tak harap kembali
+F       C
+Bagai sang surya menyinari dunia
+
+[Outro]
+C - G - Am - F - C
+`,
+            tips: "Lagu dengan progresi chord sederhana C-G-Am-F. Cocok untuk pemula yang baru belajar perpindahan chord dasar.",
+            strumPattern: "↓ ↓ ↑ ↑ ↓ ↑"
+        },
+        {
+            id: "bintang-kejora",
+            title: "Bintang Kejora",
+            artist: "Lagu Anak-Anak",
+            difficulty: "easy",
+            chords: ["C", "G", "Am", "F", "Dm"],
+            bpm: 85,
+            lyrics: `
+[Intro]
+C - G - Am - F (2x)
+
+[Verse]
+C
+Bintang kejora
+G
+Di langit yang tinggi
+Am
+Amatlah indah
+F
+Sinarnya berseri
+
+[Chorus]
+C
+Bersinar-sinar
+G
+Sinar yang terang
+Am
+Bagaikan permata
+F       C
+Di malam hari
+
+[Verse]
+Dm
+Walau jauh
+G
+Di angkasa raya
+C
+Sinar gemerlap
+Am
+Menembus gelap
+
+[Chorus]
+C
+Bersinar-sinar
+G
+Sinar yang terang
+Am
+Bagaikan permata
+F       C
+Di malam hari
+
+[Outro]
+C - G - Am - F - C
+`,
+            tips: "Perhatikan perpindahan dari C ke Dm. Dm hanya menggunakan 2 jari (senar 1 fret 1 dan senar 3 fret 2).",
+            strumPattern: "↓ ↑ ↓ ↑"
+        },
+        {
+            id: "pelangi",
+            title: "Pelangi",
+            artist: "Lagu Anak-Anak",
+            difficulty: "easy",
+            chords: ["C", "G", "F"],
+            bpm: 90,
+            lyrics: `
+[Intro]
+C - G - F - C (2x)
+
+[Verse]
+C
+Pelangi pelangi
+G
+Alangkah indahmu
+F
+Merah kuning hijau
+C
+Di langit yang biru
+
+C
+Pelukismu agung
+G
+Siapa gerangan
+F
+Pelangi pelangi
+C
+Ciptaan Tuhan
+
+[Chorus]
+C
+Merah kuning hijau
+G
+Biru nila ungu
+F
+Indah warna-warni
+C
+Pelangi ciptaan Tuhan
+
+[Verse]
+C
+Setelah hujan reda
+G
+Kau muncul di langit
+F
+Memberi senyuman
+C
+Untuk semua anak
+
+[Chorus]
+C
+Merah kuning hijau
+G
+Biru nila ungu
+F
+Indah warna-warni
+C
+Pelangi ciptaan Tuhan
+
+[Outro]
+C - G - F - C
+`,
+            tips: "Hanya menggunakan 3 chord: C, G, F. Fokus pada kejelasan suara chord F.",
+            strumPattern: "↓ ↓ ↑ ↑ ↓"
+        },
+        {
+            id: "naik-delman",
+            title: "Naik Delman",
+            artist: "Ibu Sud",
+            difficulty: "medium",
+            chords: ["C", "G7", "F", "Dm", "G"],
+            bpm: 100,
+            lyrics: `
+[Intro]
+C - G7 - C
+
+[Verse]
+C
+Pada hari minggu ku turut ayah ke kota
+G7
+Naik delman istimewa kududuk di muka
+C
+Kududuk di samping pak kusir yang sedang bekerja
+F            C
+Mengendarai kuda supaya baik jalannya
+
+[Chorus]
+G7
+Tik tak tik tak tik tak tik suara sepatu kuda
+C
+Tik tak tik tak tik tak tik tuk suara sepatu kuda
+
+[Verse]
+C
+Banyaklah yang kulihat dari atas delman
+G7
+Rumah-rumah dan kendaraan berjalan perlahan
+C
+Sungguh indah di taman bunga-bunga berseri
+F            C
+Bermacam warna hijau kuning merah jambu dan biru
+
+[Chorus]
+G7
+Tik tak tik tak tik tak tik suara sepatu kuda
+C
+Tik tak tik tak tik tak tik tuk suara sepatu kuda
+
+[Bridge]
+Dm
+Bila telah tiba di dalam kota
+G7
+Delman berhenti dengan sukacita
+C
+Kami pun turun lalu berjalan
+F          C
+Melihat-lihat di sepanjang jalan
+
+[Outro]
+C - G7 - C - F - C
+`,
+            tips: "Chord G7 adalah variasi dari G. Letakkan jari 1 di senar 1 fret 1, jari 2 di senar 5 fret 2, jari 3 di senar 6 fret 3.",
+            strumPattern: "↓ ↓ ↑ ↓ ↑"
+        }
+    ];
+
+    // Data 30-Day Challenge
+    const challengeData = {
+        title: "30-Day Guitar Challenge",
+        description: "Program latihan terstruktur untuk pemula",
+        days: [
+            {
+                day: 1,
+                title: "Pengenalan Senar dan Posisi",
+                duration: "15 menit",
+                status: "pending",
+                focusChords: [],
+                checklist: [
+                    { id: "d1c1", text: "Hafal nama 6 senar (E-A-D-G-B-E)", completed: false },
+                    { id: "d1c2", text: "Praktikkan posisi duduk yang benar", completed: false },
+                    { id: "d1c3", text: "Bunyikan setiap senar satu per satu", completed: false },
+                    { id: "d1c4", text: "Tonton video pengenalan gitar", completed: false }
+                ],
+                song: null,
+                tips: "Mulai dengan senar terbuka (tanpa menekan fret)",
+                quiz: [
+                    {
+                        question: "Apa urutan senar gitar dari yang paling tebal ke paling tipis?",
+                        options: [
+                            "E-A-D-G-B-E",
+                            "A-B-C-D-E-F", 
+                            "E-B-G-D-A-E",
+                            "C-D-E-F-G-A"
+                        ],
+                        correct: 0,
+                        explanation: "Urutan senar gitar standar adalah E (paling tebal), A, D, G, B, E (paling tipis)"
+                    },
+                    {
+                        question: "Bagian gitar manakah yang berfungsi sebagai resonator suara?",
+                        options: [
+                            "Headstock",
+                            "Neck", 
+                            "Body",
+                            "Tuning keys"
+                        ],
+                        correct: 2,
+                        explanation: "Body (badan gitar) berfungsi sebagai resonator yang memperkuat suara senar"
+                    }
+                ]
+            },
+            {
+                day: 2,
+                title: "Kunci Em - Yang Paling Mudah",
+                duration: "20 menit",
+                status: "pending",
+                focusChords: ["Em"],
+                checklist: [
+                    { id: "d2c1", text: "Pelajari diagram kunci Em", completed: false },
+                    { id: "d2c2", text: "Praktik posisi jari: jari 2-3 di fret 2", completed: false },
+                    { id: "d2c3", text: "Bunyikan semua senar dengan jelas", completed: false },
+                    { id: "d2c4", text: "Tahan chord selama 30 detik", completed: false },
+                    { id: "d2c5", text: "Ulangi setup chord 10 kali", completed: false }
+                ],
+                song: {
+                    title: "Exercise: Em Drone",
+                    chords: ["Em"],
+                    pattern: "Downstroke setiap 2 detik",
+                    tempo: "60 BPM"
+                },
+                tips: "Fokus pada tekanan jari yang cukup - tidak terlalu keras, tidak terlalu lembut",
+                quiz: [
+                    {
+                        question: "Berapa banyak jari yang digunakan untuk kunci Em?",
+                        options: [
+                            "1 jari",
+                            "2 jari", 
+                            "3 jari",
+                            "4 jari"
+                        ],
+                        correct: 1,
+                        explanation: "Kunci Em hanya menggunakan 2 jari: jari 2 dan 3"
+                    },
+                    {
+                        question: "Di fret berapakah jari-jari diletakkan untuk kunci Em?",
+                        options: [
+                            "Fret 1",
+                            "Fret 2", 
+                            "Fret 3",
+                            "Fret 4"
+                        ],
+                        correct: 1,
+                        explanation: "Kedua jari diletakkan di fret 2 untuk kunci Em"
+                    }
+                ]
+            }
+            // Hari selanjutnya bisa ditambahkan di sini
+        ]
+    };
+
+    // Data kuis berdasarkan hari
+    let currentDay = 0;
+    let currentQuiz = null;
+    let currentQuestion = 0;
+    let userAnswers = [];
+    let quizScore = 0;
+    let currentSong = null;
+    let currentTempo = 80;
+    let isPlaying = false;
+    let playInterval = null;
+
+    // Local Storage untuk menyimpan progress
+    const STORAGE_KEY = 'gitarku_challenge_progress';
+    
+    function getChallengeProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        const initialProgress = {
+            currentDay: 1,
+            completedDays: 0,
+            totalMinutes: 0,
+            completedChecklists: {},
+            quizScores: {},
+            startDate: new Date().toISOString()
+        };
+        saveChallengeProgress(initialProgress);
+        return initialProgress;
+    }
+    
+    function saveChallengeProgress(progress) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+    
+    function updateChallengeProgress(day, checklistId, completed) {
+        const progress = getChallengeProgress();
+        
+        if (!progress.completedChecklists[day]) {
+            progress.completedChecklists[day] = {};
+        }
+        progress.completedChecklists[day][checklistId] = completed;
+        
+        let completedDays = 0;
+        for (let d = 1; d <= challengeData.days.length; d++) {
+            const dayData = challengeData.days.find(dayObj => dayObj.day === d);
+            if (dayData && progress.completedChecklists[d]) {
+                const totalItems = dayData.checklist.length;
+                const completedItems = Object.values(progress.completedChecklists[d]).filter(v => v).length;
+                if (completedItems === totalItems && progress.quizScores && progress.quizScores[d] >= 2) {
+                    completedDays++;
+                }
+            }
+        }
+        
+        progress.completedDays = completedDays;
+        progress.currentDay = Math.min(completedDays + 1, challengeData.days.length);
+        
+        saveChallengeProgress(progress);
+        return progress;
+    }
+
+    function startApp() {
+        document.getElementById('welcome').style.transform = 'translateY(-100%)';
+        setTimeout(() => { 
+            document.getElementById('app').style.display = 'block'; 
+            renderChords(chordData);
+            renderSongs();
+        }, 600);
+    }
+
+    function showTab(tab) {
+        const tabs = ['materi', 'kunci', 'lagu', 'challenge'];
+        tabs.forEach(t => {
+            const isActive = t === tab;
+            document.getElementById(`tab-${t}-content`).style.display = isActive ? 'block' : 'none';
+            document.getElementById(`btn-${t}`).classList.toggle('active', isActive);
+        });
+        
+        if (tab === 'challenge') {
+            renderChallengeTab();
+        }
+    }
+
+    function renderSongs() {
+        let html = '';
+        songData.forEach(song => {
+            let difficultyClass = '';
+            if (song.difficulty === 'easy') difficultyClass = 'easy';
+            if (song.difficulty === 'medium') difficultyClass = 'medium';
+            if (song.difficulty === 'hard') difficultyClass = 'hard';
+            
+            html += `
+                <div class="song-card" onclick="openSong('${song.id}')">
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-artist">${song.artist}</div>
+                    <div>
+                        <span class="song-difficulty ${difficultyClass}">${song.difficulty.toUpperCase()}</span>
+                        <span style="font-size:0.8rem; color:#666;">Tempo: ${song.bpm} BPM</span>
+                    </div>
+                    <div class="song-chords">
+                        ${song.chords.map(chord => `<span class="song-chord-badge">${chord}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('song-list-container').innerHTML = html;
+    }
+
+    function openSong(songId) {
+        const song = songData.find(s => s.id === songId);
+        if (!song) return;
+        
+        currentSong = song;
+        
+        // Format lirik dengan chord dan lirik terpisah
+        const lyricsLines = song.lyrics.trim().split('\n');
+        let formattedLyrics = '';
+        let currentSection = '';
+        
+        lyricsLines.forEach(line => {
+            line = line.trim();
+            if (line.startsWith('[') && line.endsWith(']')) {
+                // Ini adalah section header
+                currentSection = line;
+                formattedLyrics += `<div class="song-section">
+                    <div class="song-section-title">${line}</div>`;
+            } else if (line.includes('[') || /^[A-G][mb#0-9]*(\s+[A-G][mb#0-9]*)*$/.test(line)) {
+                // Ini adalah baris chord
+                formattedLyrics += `<div class="song-chord-line">${line}</div>`;
+            } else if (line) {
+                // Ini adalah baris lirik
+                formattedLyrics += `<div class="song-lyric-line">${line}</div>`;
+            }
+            
+            if (line === '' && currentSection) {
+                // Akhir section
+                formattedLyrics += `</div>`;
+                currentSection = '';
+            }
+        });
+        
+        if (currentSection) {
+            formattedLyrics += `</div>`;
+        }
+        
+        // Buat info chord yang digunakan
+        let chordInfo = '';
+        song.chords.forEach(chordName => {
+            const chord = chordData.find(c => c.name === chordName);
+            if (chord) {
+                chordInfo += `<span class="chord-tag" onclick="openChord('${chordName}')">${chordName}</span> `;
+            } else {
+                chordInfo += `<span class="chord-tag">${chordName}</span> `;
+            }
+        });
+        
+        const content = `
+            <div class="materi-content">
+                <h3><i class="fas fa-music"></i> ${song.title}</h3>
+                <p><strong>Artis:</strong> ${song.artist}</p>
+                <p><strong>Tempo:</strong> ${song.bpm} BPM</p>
+                <p><strong>Pola Strumming:</strong> ${song.strumPattern}</p>
+                
+                <div class="song-info-box">
+                    <strong>Chord yang digunakan:</strong><br>
+                    <div class="chord-tags">${chordInfo}</div>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>💡 Tips Bermain:</strong> ${song.tips}
+                </div>
+                
+                <h4><i class="fas fa-scroll"></i> Lirik dan Chord</h4>
+                <div class="song-lyrics-container">
+                    ${formattedLyrics}
+                </div>
+                
+                <div class="metronome-section">
+                    <h4><i class="fas fa-drum"></i> Latihan dengan Metronom</h4>
+                    <div class="tempo-control">
+                        <button class="tempo-btn" onclick="changeTempo(-5)">-</button>
+                        <span class="tempo-display">${currentTempo} BPM</span>
+                        <button class="tempo-btn" onclick="changeTempo(5)">+</button>
+                    </div>
+                    <button class="play-along-btn" onclick="toggleMetronome()">
+                        <i class="fas ${isPlaying ? 'fa-stop' : 'fa-play'}"></i> 
+                        ${isPlaying ? 'STOP METRONOM' : 'MULAI METRONOM'}
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('detail-title').innerText = song.title;
+        document.getElementById('detail-content').innerHTML = content;
+        
+        // Tampilkan tombol mainkan lagu
+        document.getElementById('play-song-btn').style.display = 'block';
+        document.getElementById('start-quiz-btn').style.display = 'none';
+        document.getElementById('mark-complete-btn').style.display = 'none';
+        
+        document.getElementById('detail-view').style.display = 'flex';
+    }
+
+    function changeTempo(change) {
+        currentTempo = Math.max(40, Math.min(200, currentTempo + change));
+        document.querySelector('.tempo-display').textContent = `${currentTempo} BPM`;
+        
+        // Jika metronom sedang berjalan, restart dengan tempo baru
+        if (isPlaying) {
+            clearInterval(playInterval);
+            startMetronome();
+        }
+    }
+
+    function toggleMetronome() {
+        if (isPlaying) {
+            stopMetronome();
+        } else {
+            startMetronome();
+        }
+    }
+
+    function startMetronome() {
+        isPlaying = true;
+        document.querySelector('.play-along-btn i').className = 'fas fa-stop';
+        document.querySelector('.play-along-btn').innerHTML = '<i class="fas fa-stop"></i> STOP METRONOM';
+        
+        const interval = 60000 / currentTempo; // ms per beat
+        let beat = 0;
+        
+        // Buat suara klik sederhana
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        playInterval = setInterval(() => {
+            beat = (beat % 4) + 1;
+            
+            // Visual feedback
+            const tempoDisplay = document.querySelector('.tempo-display');
+            tempoDisplay.style.color = beat === 1 ? 'red' : 'black';
+            tempoDisplay.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                tempoDisplay.style.transform = 'scale(1)';
+            }, 100);
+            
+            // Suara klik
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = beat === 1 ? 800 : 600;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+            
+        }, interval);
+    }
+
+    function stopMetronome() {
+        isPlaying = false;
+        clearInterval(playInterval);
+        document.querySelector('.play-along-btn i').className = 'fas fa-play';
+        document.querySelector('.play-along-btn').innerHTML = '<i class="fas fa-play"></i> MULAI METRONOM';
+        
+        // Reset visual
+        const tempoDisplay = document.querySelector('.tempo-display');
+        tempoDisplay.style.color = '';
+        tempoDisplay.style.transform = '';
+    }
+
+    function startPlayAlong() {
+        if (!currentSong) return;
+        
+        alert(`Bermain "${currentSong.title}" bersama metronom!\n\nTips:\n1. Mulai dengan tempo ${currentSong.bpm} BPM\n2. Gunakan pola strumming: ${currentSong.strumPattern}\n3. Fokus pada perpindahan chord yang mulus\n\nSelamat bermain! 🎸`);
+        
+        // Set tempo ke tempo lagu
+        currentTempo = currentSong.bpm;
+        if (document.querySelector('.tempo-display')) {
+            document.querySelector('.tempo-display').textContent = `${currentTempo} BPM`;
+        }
+        
+        // Jika metronom tidak berjalan, mulai metronom
+        if (!isPlaying) {
+            toggleMetronome();
+        }
+    }
+
+    function renderChallengeTab() {
+        const progress = getChallengeProgress();
+        const completedDays = progress.completedDays;
+        const totalDays = challengeData.days.length;
+        const percentage = Math.round((completedDays / totalDays) * 100);
+        
+        document.getElementById('challenge-progress').style.width = `${percentage}%`;
+        document.getElementById('progress-text').textContent = 
+            `Progress: ${completedDays}/${totalDays} hari (${percentage}%)`;
+        
+        const statsHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${completedDays}</div>
+                <div class="stat-label">Hari Selesai</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${totalDays}</div>
+                <div class="stat-label">Total Hari</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${percentage}%</div>
+                <div class="stat-label">Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${progress.currentDay}</div>
+                <div class="stat-label">Hari Ini</div>
+            </div>
+        `;
+        document.getElementById('challenge-stats').innerHTML = statsHTML;
+        
+        let daysHTML = '';
+        const weeks = [];
+        for (let i = 0; i < challengeData.days.length; i += 7) {
+            weeks.push(challengeData.days.slice(i, i + 7));
+        }
+        
+        weeks.forEach((week, weekIndex) => {
+            daysHTML += `<div class="week-section">
+                <div class="week-title">Minggu ${weekIndex + 1}</div>`;
+            
+            week.forEach(dayData => {
+                const dayProgress = progress.completedChecklists[dayData.day] || {};
+                const totalItems = dayData.checklist.length;
+                const completedItems = Object.values(dayProgress).filter(v => v).length;
+                const quizScore = progress.quizScores ? (progress.quizScores[dayData.day] || 0) : 0;
+                const isCompleted = completedItems === totalItems && quizScore >= 2;
+                const isCurrent = dayData.day === progress.currentDay;
+                const isLocked = dayData.day > progress.currentDay && !isCompleted;
+                
+                let statusClass = "pending";
+                if (isCompleted) statusClass = "completed";
+                if (isLocked) statusClass = "locked";
+                
+                daysHTML += `
+                    <div class="day-card" onclick="openDayDetail(${dayData.day})">
+                        <div class="day-header">
+                            <div class="day-title">Hari ${dayData.day}: ${dayData.title}</div>
+                            <div class="day-number">${dayData.day}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <span class="duration-badge">${dayData.duration}</span>
+                            <div class="status-indicator ${statusClass}"></div>
+                        </div>
+                        <div style="margin-top:8px; font-size:0.85rem; color:#666">
+                            ${completedItems}/${totalItems} checklist
+                            ${quizScore > 0 ? ` • Kuis: ${quizScore}/2` : ''}
+                            ${isCurrent ? ' • <strong>HARI INI</strong>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            daysHTML += `</div>`;
+        });
+        
+        document.getElementById('challenge-days-container').innerHTML = daysHTML;
+    }
+
+    function openDayDetail(dayNumber) {
+        const dayData = challengeData.days.find(d => d.day === dayNumber);
+        const progress = getChallengeProgress();
+        const dayProgress = progress.completedChecklists[dayNumber] || {};
+        
+        if (!dayData) return;
+        
+        currentDay = dayNumber;
+        
+        if (dayNumber > progress.currentDay && !dayProgress.isUnlocked) {
+            alert(`Hari ${dayNumber} masih terkunci. Selesaikan hari ${progress.currentDay} terlebih dahulu!`);
+            return;
+        }
+        
+        let checklistHTML = '';
+        dayData.checklist.forEach((item, index) => {
+            const isChecked = dayProgress[item.id] || false;
+            checklistHTML += `
+                <div class="checklist-item">
+                    <div class="checklist-checkbox ${isChecked ? 'checked' : ''}" 
+                         onclick="toggleChecklist(${dayNumber}, '${item.id}', ${!isChecked})">
+                        ${isChecked ? '✓' : ''}
+                    </div>
+                    <div class="checklist-text">${item.text}</div>
+                </div>
+            `;
+        });
+        
+        let songHTML = '';
+        if (dayData.song) {
+            let chordTags = '';
+            if (dayData.focusChords && dayData.focusChords.length > 0) {
+                dayData.focusChords.forEach(chord => {
+                    chordTags += `<span class="chord-tag" onclick="openChord('${chord}')">${chord}</span>`;
+                });
+            }
+            
+            songHTML = `
+                <div class="song-item">
+                    <h4>🎵 ${dayData.song.title}</h4>
+                    <p><strong>Chord:</strong> ${dayData.song.chords.join(' - ')}</p>
+                    <p><strong>Pola:</strong> ${dayData.song.pattern}</p>
+                    <p><strong>Tempo:</strong> ${dayData.song.tempo}</p>
+                    <div class="chord-tags">${chordTags}</div>
+                </div>
+            `;
+        }
+        
+        let focusChordsHTML = '';
+        if (dayData.focusChords && dayData.focusChords.length > 0) {
+            focusChordsHTML = `
+                <div class="highlight-box">
+                    <strong>Chord Fokus Hari Ini:</strong><br>
+                    ${dayData.focusChords.map(chord => 
+                        `<span class="chord-tag" onclick="openChord('${chord}')">${chord}</span>`
+                    ).join('')}
+                </div>
+            `;
+        }
+        
+        const totalItems = dayData.checklist.length;
+        const completedItems = Object.values(dayProgress).filter(v => v).length;
+        const allChecklistsComplete = completedItems === totalItems;
+        const quizScore = progress.quizScores ? (progress.quizScores[dayNumber] || 0) : 0;
+        const quizPassed = quizScore >= 2;
+        
+        const content = `
+            <div class="materi-content">
+                <h3>Hari ${dayData.day}: ${dayData.title}</h3>
+                <p><span class="duration-badge">${dayData.duration}</span> 
+                <span style="color:${allChecklistsComplete && quizPassed ? 'green' : 'orange'}">
+                    ● ${allChecklistsComplete && quizPassed ? 'Selesai' : 'Dalam Progress'}
+                </span></p>
+                
+                ${focusChordsHTML}
+                
+                <h4>📋 Checklist Harian (${completedItems}/${totalItems})</h4>
+                ${checklistHTML}
+                
+                ${songHTML ? `<h4>🎸 Lagu Latihan</h4>${songHTML}` : ''}
+                
+                <div class="tip-box">
+                    <strong>💡 Tips Hari Ini:</strong> ${dayData.tips}
+                </div>
+                
+                ${quizPassed ? `
+                    <div class="highlight-box" style="background:#e8f5e9; border-color:#4CAF50">
+                        <strong>✅ Kuis Telah Diselesaikan</strong><br>
+                        Skor: ${quizScore}/2
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        document.getElementById('detail-title').innerText = `Hari ${dayData.day}`;
+        document.getElementById('detail-content').innerHTML = content;
+        
+        // Tampilkan tombol yang sesuai
+        if (allChecklistsComplete && !quizPassed) {
+            document.getElementById('start-quiz-btn').style.display = 'block';
+            document.getElementById('mark-complete-btn').style.display = 'none';
+        } else if (allChecklistsComplete && quizPassed) {
+            document.getElementById('start-quiz-btn').style.display = 'none';
+            document.getElementById('mark-complete-btn').style.display = 'block';
+            document.getElementById('mark-complete-btn').innerText = 'HARI SELESAI ✅';
+        } else {
+            document.getElementById('start-quiz-btn').style.display = 'none';
+            document.getElementById('mark-complete-btn').style.display = 'none';
+        }
+        
+        document.getElementById('play-song-btn').style.display = 'none';
+        
+        document.getElementById('detail-view').style.display = 'flex';
+    }
+
+    function toggleChecklist(day, checklistId, completed) {
+        updateChallengeProgress(day, checklistId, completed);
+        openDayDetail(day);
+        renderChallengeTab();
+    }
+
+    function startQuiz() {
+        const dayData = challengeData.days.find(d => d.day === currentDay);
+        if (!dayData || !dayData.quiz) return;
+        
+        currentQuiz = dayData.quiz;
+        currentQuestion = 0;
+        userAnswers = [];
+        quizScore = 0;
+        
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (!currentQuiz || currentQuestion >= currentQuiz.length) {
+            showQuizResults();
+            return;
+        }
+        
+        const question = currentQuiz[currentQuestion];
+        let optionsHTML = '';
+        
+        question.options.forEach((option, index) => {
+            optionsHTML += `
+                <div class="quiz-option" onclick="selectAnswer(${index})">
+                    ${option}
+                </div>
+            `;
+        });
+        
+        const content = `
+            <div class="quiz-instruction">
+                Jawab ${currentQuiz.length} pertanyaan tentang materi hari ini.<br>
+                Minimal skor ${Math.ceil(currentQuiz.length/2)}/${currentQuiz.length} untuk lulus.
+            </div>
+            
+            <div class="quiz-progress">
+                Pertanyaan ${currentQuestion + 1} dari ${currentQuiz.length}
+            </div>
+            
+            <div class="quiz-question">
+                <div class="question-text">${question.question}</div>
+                ${optionsHTML}
+            </div>
+            
+            <button class="btn-done" id="next-question-btn" onclick="nextQuestion()" style="display:none">
+                LANJUT
+            </button>
+        `;
+        
+        document.getElementById('quiz-title').innerText = `Kuis - Hari ${currentDay}`;
+        document.getElementById('quiz-content').innerHTML = content;
+        document.getElementById('quiz-view').style.display = 'flex';
+    }
+
+    function selectAnswer(optionIndex) {
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(opt => opt.classList.remove('selected'));
+        options[optionIndex].classList.add('selected');
+        
+        document.getElementById('next-question-btn').style.display = 'block';
+        userAnswers[currentQuestion] = optionIndex;
+    }
+
+    function nextQuestion() {
+        if (userAnswers[currentQuestion] === undefined) {
+            alert("Pilih jawaban terlebih dahulu!");
+            return;
+        }
+        
+        // Tampilkan feedback
+        const question = currentQuiz[currentQuestion];
+        const userAnswer = userAnswers[currentQuestion];
+        const isCorrect = userAnswer === question.correct;
+        
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach((opt, index) => {
+            if (index === question.correct) {
+                opt.classList.add('correct');
+            } else if (index === userAnswer && !isCorrect) {
+                opt.classList.add('wrong');
+            }
+        });
+        
+        // Tambahkan feedback
+        const feedback = document.createElement('div');
+        feedback.className = `quiz-feedback ${isCorrect ? 'correct' : 'wrong'}`;
+        feedback.innerHTML = `
+            ${isCorrect ? '✅ Benar!' : '❌ Salah!'}<br>
+            ${question.explanation}
+        `;
+        
+        document.querySelector('.quiz-question').appendChild(feedback);
+        
+        // Update score
+        if (isCorrect) quizScore++;
+        
+        // Tunggu 2 detik sebelum lanjut
+        setTimeout(() => {
+            currentQuestion++;
+            if (currentQuestion < currentQuiz.length) {
+                showQuestion();
+            } else {
+                showQuizResults();
+            }
+        }, 2000);
+    }
+
+    function showQuizResults() {
+        const percentage = Math.round((quizScore / currentQuiz.length) * 100);
+        const passed = quizScore >= Math.ceil(currentQuiz.length/2);
+        
+        const content = `
+            <div class="quiz-result">
+                <h3>Hasil Kuis</h3>
+                <div class="quiz-score">${quizScore}/${currentQuiz.length}</div>
+                <div class="quiz-message">
+                    ${passed ? '🎉 SELAMAT! Anda lulus kuis!' : '😔 Maaf, Anda belum lulus.'}
+                </div>
+                <p>Skor: ${percentage}%</p>
+                <p>${passed ? 'Anda dapat melanjutkan ke hari berikutnya.' : 'Coba lagi untuk mencapai skor minimal.'}</p>
+                
+                <div>
+                    ${!passed ? `<button class="retry-btn" onclick="retryQuiz()">COBA LAGI</button>` : ''}
+                    <button class="continue-btn" onclick="closeQuizAndContinue(${passed})">
+                        ${passed ? 'LANJUT' : 'KEMBALI'}
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('quiz-content').innerHTML = content;
+        
+        // Simpan skor ke localStorage jika lulus
+        if (passed) {
+            const progress = getChallengeProgress();
+            if (!progress.quizScores) progress.quizScores = {};
+            progress.quizScores[currentDay] = quizScore;
+            saveChallengeProgress(progress);
+        }
+    }
+
+    function retryQuiz() {
+        currentQuestion = 0;
+        userAnswers = [];
+        quizScore = 0;
+        showQuestion();
+    }
+
+    function closeQuizAndContinue(passed) {
+        closeQuiz();
+        openDayDetail(currentDay);
+        if (passed) {
+            renderChallengeTab();
+        }
+    }
+
+    function closeQuiz() {
+        document.getElementById('quiz-view').style.display = 'none';
+    }
+
+    function markDayComplete() {
+        const progress = getChallengeProgress();
+        const dayProgress = progress.completedChecklists[currentDay] || {};
+        const totalItems = challengeData.days.find(d => d.day === currentDay).checklist.length;
+        const completedItems = Object.values(dayProgress).filter(v => v).length;
+        const quizScore = progress.quizScores ? (progress.quizScores[currentDay] || 0) : 0;
+        
+        if (completedItems === totalItems && quizScore >= 2) {
+            const dayData = challengeData.days.find(d => d.day === currentDay);
+            dayData.status = "completed";
+            alert(`🎉 Selamat! Hari ${currentDay} telah diselesaikan dengan sempurna!`);
+            closeDetail();
+            renderChallengeTab();
+        } else {
+            alert("Anda harus menyelesaikan semua checklist dan lulus kuis terlebih dahulu!");
+        }
+    }
+
+    function renderChords(list) {
+        let html = '';
+        list.forEach(c => {
+            html += `<div class="chord-card" onclick="openChord('${c.name}')">
+                <div style="width:70px; height:70px; background:#f0f0f0; border-radius:10px; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:var(--accent);">
+                    ${c.name}
+                </div>
+                <div style="font-weight:800; margin-top:10px">Kunci ${c.name}</div>
+                <div style="font-size:0.8rem; color:#666; margin-top:5px">Klik untuk detail</div>
+            </div>`;
+        });
+        document.getElementById('chord-list-container').innerHTML = html;
+    }
+
+    function filterChords(query) {
+        const filtered = chordData.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
+        renderChords(filtered);
+    }
+
+    function openMateri(id) {
+        const data = materiData[id];
+        document.getElementById('detail-title').innerText = data.title;
+        document.getElementById('detail-content').innerHTML = data.body;
+        document.getElementById('detail-view').style.display = 'flex';
+        document.getElementById('start-quiz-btn').style.display = 'none';
+        document.getElementById('mark-complete-btn').style.display = 'none';
+        document.getElementById('play-song-btn').style.display = 'none';
+    }
+
+   function openChord(name) {
+    const chord = chordData.find(c => c.name === name);
+    if (!chord) {
+        alert("Data chord tidak ditemukan!");
+        return;
+    }
+
+    document.getElementById("detail-title").innerText = "Kunci " + name;
+
+    document.getElementById("detail-content").innerHTML = `
+        <!-- KOTAK BESAR HURUF -->
+        <div style="text-align:center">
+            <div style="
+                width:160px;
+                height:160px;
+                margin:0 auto 10px;
+                border:3px solid #7d8e7f;
+                border-radius:20px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:4rem;
+                font-weight:800;
+                color:#7d8e7f;
+            ">
+                ${name}
+            </div>
+            <h3>Kunci ${name}</h3>
+        </div>
+
+        <!-- POSISI JARI (TEXT) -->
+        <div class="highlight-box">
+            ${chord.fingers}
+        </div>
+
+        <!-- DIAGRAM -->
+        <div style="text-align:center">
+            <img src="${chord.image}" 
+                 style="width:180px" 
+                 onerror="this.style.display='none'">
+        </div>
+
+        <!-- TIPS LATIHAN -->
+        <div class="tip-box">
+            <strong>💡 Cara Latihan:</strong><br>
+            ${name === 'F'
+                ? 'Mulai dari versi mudah terlebih dahulu sebelum barre.'
+                : name === 'Em'
+                ? 'Latihan transisi Em → Am sebanyak 10 kali.'
+                : name === 'C'
+                ? 'Pastikan senar 6 tidak berbunyi. Latihan dengan metronom 60 BPM.'
+                : 'Tahan chord selama 30 detik, lepas, ulangi 10 kali.'
+            }
+        </div>
+
+        <p><strong>Progress Check:</strong>  
+        Jika sudah bisa berpindah dari C ke ${name} dalam 3 detik, lanjut ke chord berikutnya.</p>
+    `;
+
+    document.getElementById("start-quiz-btn").style.display = "none";
+    document.getElementById("mark-complete-btn").style.display = "none";
+    document.getElementById("play-song-btn").style.display = "none";
+
+    document.getElementById("detail-view").style.display = "flex";
+}
+
+
+		function closeDetail() {
+			// Tutup halaman detail
+			document.getElementById("detail-view").style.display = "none";
+
+			// Reset isi (biar rapi)
+			document.getElementById("detail-title").innerText = "Detail";
+			document.getElementById("detail-content").innerHTML = "";
+
+			// Sembunyikan semua tombol tambahan
+			document.getElementById("start-quiz-btn").style.display = "none";
+			document.getElementById("mark-complete-btn").style.display = "none";
+			document.getElementById("play-song-btn").style.display = "none";
+
+			// Hentikan metronom kalau sedang jalan
+			if (typeof isPlaying !== "undefined" && isPlaying) {
+				stopMetronome();
+			}
+
+			// Aktifkan scroll lagi
+			document.body.style.overflow = "";
+		}
+
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+
+
+
+</script>
+
+</body>
+</html>
